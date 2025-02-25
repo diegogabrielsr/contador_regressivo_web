@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contador Regressivo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Faltam até 15 de Agosto:</h1>
+        <div id="contador">
+            <span id="dias">00</span> dias
+            <span id="horas">00</span>h
+            <span id="minutos">00</span>m
+            <span id="segundos">00</span>s
+        </div>
+    </div>
+    <script>
+        async function fetchTargetDate() {
+            const response = await fetch('/get_target_date');
+            const data = await response.json();
+            return new Date(data.target_date + 'T00:00:00');
+        }
+
+        async function atualizarContador() {
+            const targetDate = await fetchTargetDate();
+            function calcularTempo() {
+                const agora = new Date();
+                const diferenca = targetDate - agora;
+
+                if (diferenca <= 0) {
+                    document.getElementById("contador").innerHTML = "Chegou o grande dia!";
+                    return;
+                }
+
+                const dias = Math.floor(diferenca / (1000 * 60 * 60 * 24));
+                const horas = Math.floor((diferenca % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutos = Math.floor((diferenca % (1000 * 60 * 60)) / (1000 * 60));
+                const segundos = Math.floor((diferenca % (1000 * 60)) / 1000);
+
+                document.getElementById("dias").textContent = dias.toString().padStart(2, '0');
+                document.getElementById("horas").textContent = horas.toString().padStart(2, '0');
+                document.getElementById("minutos").textContent = minutos.toString().padStart(2, '0');
+                document.getElementById("segundos").textContent = segundos.toString().padStart(2, '0');
+            }
+            calcularTempo();
+            setInterval(calcularTempo, 1000);
+        }
+
+        atualizarContador();
+    </script>
+</body>
+</html>
